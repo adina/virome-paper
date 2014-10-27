@@ -2,7 +2,7 @@ library(phyloseq)
 library(plyr)
 library(ggplot2)
 library(data.table)
-#setwd("./analysis-files")
+setwd("/Users/adina/software/virome-paper/analysis-files")
 
 ==============
 #LOAD FUNCTIONAL DATA

@@ -1,8 +1,13 @@
+#source("http://bioconductor.org/biocLite.R")
+#biocLite("phyloseq")
+#install.packages("plyr")
+#install.packages("ggplot2")
+#install.packages("data.table")
 library(phyloseq)
 library(plyr)
 library(ggplot2)
 library(data.table)
-setwd("/Users/adina/software/virome-paper/analysis-files")
+setwd("/Users/adina/virome-paper/analysis-files")
 
 ==============
 #LOAD FUNCTIONAL DATA
@@ -25,7 +30,20 @@ metadata <- sample_data(meta)
 #phyloseq object with annotations
 all <- phyloseq(metadata, abundance, annotation)
 
-
+#exploring temperate presence in virus fractions
+all_temp_ind <- subset_samples(all, ext_frac == "ind")
+all_temp_vlp <- subset_samples(all, ext_frac == "vlp")
+mdf_ind <- psmelt(all_temp_ind)
+mdf_ind_gt0 <- subset(mdf_ind, mdf_ind$Abundance > 0)
+mdf_ind_gt0 <- subset(mdf_ind, mdf_ind$Abundance > 7.178e-5) #mean value of Abudances
+mdf_vlp <- psmelt(all_temp_vlp)
+mdf_vlp_gt0 <- subset(mdf_vlp, mdf_vlp$Abundance > 0)
+mdf_vlp_gt0 <- subset(mdf_vlp, mdf_vlp$Abundance > 2.430e-6) #mean value of Abudances
+t<-merge(mdf_ind_gt0, mdf_vlp_gt0, by="OTU")
+t2<-unique(t$OTU)
+blah <-ann[row.names(ann) %in% t2,]
+summary(blah)
+ 
 #writing out subsets
 vlp <- subset_samples(all, ext_frac == "ind" & cage_str == "50")
 towrite <- otu_table(vlp)
@@ -218,7 +236,7 @@ for (i in 1:l){
 #Contigs that are significant				
 mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
 f <- ddply(mdf_phage, .(OTU, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
-f3 <- subset(f, ext_frac == "vlp")
+f3 <- subset(f, ext_frac == "ind")
 l = length(unique(f3$OTU))
 stat_sig = rep(0, l)
 for (i in 1:l){
@@ -232,8 +250,28 @@ for (i in 1:l){
 			stat_sig[i] = as.character(f_dat$OTU[1])
 			print(TukeyHSD(aov.result))
 			x<-c(unique(f_dat[1]),as.character(f_dat$SUM[1]), as.character(f_dat$SUM[2]),as.character(f_dat$SUM[3]),as.character(f_dat$SUM[4]), as.character(f_dat$SUM[5]),as.character(f_dat$SUM[6]), as.character(f_dat$SUM[7]),as.character(f_dat$SUM[8]), as.character(f_dat$SUM[9]), pvalue)
-			write.table(x, file="test.tsv", append=TRUE, quote=FALSE, sep="\t ", eol="\n", row.names = FALSE, col.names=FALSE)}
+			write.table(x, file="ind.tsv", append=TRUE, quote=FALSE, sep="\t ", eol="\n", row.names = FALSE, col.names=FALSE)}
 	}
+
+mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+f <- ddply(mdf_phage, .(OTU, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
+f3 <- subset(f, ext_frac == "ind")
+l = length(unique(f3$OTU))
+stat_sig = rep(0, l)
+for (i in 1:l){
+	f_dat <- subset(f3, OTU == unique(f3$OTU)[i])
+	#print(f_dat)
+	summary(aov.result <- aov(SUM ~ diet2, data = f_dat))
+	if(summary(aov.result)[[1]][["Pr(>F)"]][1] <= 0.05 & summary(aov.result)[[1]][["Pr(>F)"]][1] != "NaN"){
+			print(f_dat)
+			print(summary(aov.result <- aov(SUM ~ diet2, data = f_dat)))
+			pvalue = summary(aov.result)[[1]][["Pr(>F)"]][1]
+			stat_sig[i] = as.character(f_dat$OTU[1])
+			print(TukeyHSD(aov.result))
+			x<-c(unique(f_dat[1]),as.character(f_dat$SUM[1]), as.character(f_dat$SUM[2]),as.character(f_dat$SUM[3]),as.character(f_dat$SUM[4]), as.character(f_dat$SUM[5]),as.character(f_dat$SUM[6]), as.character(f_dat$SUM[7]),as.character(f_dat$SUM[8]), as.character(f_dat$SUM[9]), pvalue)
+			write.table(x, file="vlp.tsv", append=TRUE, quote=FALSE, sep="\t ", eol="\n", row.names = FALSE, col.names=FALSE)}
+	}
+
 	
 # Exploring core proteins (Figure 8)
 all <- phyloseq(metadata, abundance)
@@ -275,3 +313,7 @@ anova(mod)
 permutest(mod, pairwise = TRUE, permutations=9999)
 (mod.HSD <- TukeyHSD(mod))
 
+#looking into 35 contigs
+head(annotation)
+ann_sig <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "150663_12727_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "2972_2971_VLP" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "9619_9618_IND"),]
+summary(ann_sig)

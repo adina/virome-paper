@@ -123,8 +123,12 @@ GPNMDS = ordinate(all, "NMDS", GPdist)
 #3/6 3/12 , 3/27, 4/2
 #all_t <- subset_samples(all, date == "3/27/13" | date == "4/2/13")
 #p2 = plot_ordination(all_t, GPNMDS, color="ext_frac", shape="cage_str")
-p2 = plot_ordination(all, GPNMDS, color="ext_frac", shape="cage_str")+theme_bw()+theme(text=element_text(size=20))+geom_point(size=4)+opts(panel.grid.major=theme_blank(),panel.grid.minor=theme_blank())
+p2 = plot_ordination(all, GPNMDS, color="ext_frac", shape="cage_str")+theme_bw()+theme(text=element_text(size=20))+geom_point(size=4)+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
 p2 + guides(colour=guide_legend(title="DNA Fraction"), shape=guide_legend(title="Baseline diet"))
+ggsave("FigureS6.eps")
+dev.off()
+
+
 p2 = plot_ordination(all, GPNMDS, shape="cage_str")
 p2 + geom_point(size = 6)+ theme_bw() + theme(text = element_text(size=15))+theme_bw()+scale_x_continuous(limits = c(-.5, .75))+scale_y_continuous(limits = c(-.5, .5))+theme_bw()
 x <- data.frame(GPNMDS$points)
@@ -135,12 +139,18 @@ y <- merge(x, meta, by="row.names")
 y <- data.frame(y, Age2 = as.character(y$Age))
 meta <- data.frame(meta, Age = as.character(meta$Age))
 y <- subset(y, ext_frac == "vlp")
-ggplot(data = y, aes(MDS1, MDS2)) +geom_point(data=subset(y, y$cage_str=="50"), colour="red", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="blue", aes(shape=Age2, size=10))+scale_x_continuous(limits = c(-.3000,.6))+scale_y_continuous(limits = c(-.6,.4))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,1,17,15)) +opts(legend.key=theme_rect(fill="white",colour="white"))+opts(legend.background = theme_blank())
+ggsave("Fig7b.eps")
+ggplot(data = y, aes(MDS1, MDS2)) +geom_point(data=subset(y, y$cage_str=="50"), colour="blue", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="orange", aes(shape=Age2, size=10))+scale_x_continuous(limits = c(-.3000,.6))+scale_y_continuous(limits = c(-.6,.4))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,1,17,15)) +theme(legend.key=element_rect(fill="white",colour="white"))+theme(legend.background = element_blank())
+dev.off()
 y <- subset(y, ext_frac == "vlp")
 y <- subset(y, ext_frac == "ind")
-ggplot(data = y, aes(MDS1, MDS2)) +   geom_point(data=subset(y, y$cage_str=="50"), colour="red", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="blue", aes(shape=Age2, size=10))+scale_x_continuous(limits = c(-.3000,.6))+scale_y_continuous(limits = c(-.6,.4))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,1,17,15))+opts(legend.key=theme_rect(fill="white",colour="white"))+opts(legend.background = theme_blank())
+ggsave("Fig7c.eps")
+ggplot(data = y, aes(MDS1, MDS2)) +   geom_point(data=subset(y, y$cage_str=="50"), colour="blue", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="orange", aes(shape=Age2, size=10))+scale_x_continuous(limits = c(-.3000,.6))+scale_y_continuous(limits = c(-.6,.4))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,1,17,15))+theme(legend.key=element_rect(fill="white",colour="white"))+theme(legend.background = element_blank())
+dev.off()
 y <- subset(y, ext_frac == "total")
-ggplot(data = y, aes(MDS1, MDS2)) +   geom_point(data=subset(y, y$cage_str=="50"), colour="red", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="blue", aes(shape=Age2, size=10))+scale_y_continuous(limits = c(-.1,.2))+scale_x_continuous(limits = c(-.6,-.3))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,17,15))+opts(legend.key=theme_rect(fill="white",colour="white"))+opts(legend.background = theme_blank())
+ggsave("Fig7a.eps")
+ggplot(data = y, aes(MDS1, MDS2)) +   geom_point(data=subset(y, y$cage_str=="50"), colour="blue", size=5, aes(shape = Age2, size=10)) + geom_point(data=subset(y, y$cage_str=="77"), size=5, colour="orange", aes(shape=Age2, size=10))+scale_y_continuous(limits = c(-.1,.2))+scale_x_continuous(limits = c(-.6,-.3))+theme_bw()+theme(text=element_text(size=15)) +guides(shape=guide_legend(title="Day"))+scale_shape_manual("Day", values=c(16,17,15))+theme(legend.key=element_rect(fill="white",colour="white"))+theme(legend.background = element_blank())
+dev.off()
 adonis(GPdist ~ ext_frac, perm=9999, as(sample_data(all),"data.frame"))
 
 #Generating NMDS Baseline distances
@@ -194,8 +204,8 @@ all <- phyloseq(metadata, abundance)
 all_vlp <- all
 all_vlp <- subset_samples(all, diet != 'LF-MF')
 all_vlp <- subset_samples(all_vlp, diet != 'MF-LF')
-all_vlp <- subset_samples(all, ext_frac == "vlp" | ext_frac == "ind")
-all_vlp <- subset_samples(all_vlp, cage_str == "77")
+all_vlp <- subset_samples(all, Age == "0" | Age == "43")
+#all_vlp <- subset_samples(all_vlp, cage_str == "77")
 #all_vlp <- subset_samples(all_vlp, diet2 != 'LF*')
 #all_vlp <- subset_samples(all_vlp, diet2 != 'MF*')
 meta <- sample_data(all_vlp)
@@ -209,8 +219,10 @@ anova(mod)
 permutest(mod, pairwise = TRUE, permutations=9999)
 (mod.HSD <- TukeyHSD(mod))
 clust <- hclust(bd, method="average")
+setEPS()
+postscript("suppfig4.eps")
 plot(clust)
-
+dev.off()
 
 #Functions that are statistically significant
 all <- phyloseq(metadata, abundance, annotation)
@@ -234,7 +246,9 @@ for (i in 1:l){
 				}
 				
 #Contigs that are significant				
-mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+#mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+#mdf_phage = subset(mdf, l3 == "Nitrogen Metabolism")
+mdf_phage = subset(mdf, l3 == "Motility and Chemotaxis")
 f <- ddply(mdf_phage, .(OTU, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
 f3 <- subset(f, ext_frac == "ind")
 l = length(unique(f3$OTU))
@@ -253,9 +267,11 @@ for (i in 1:l){
 			write.table(x, file="ind.tsv", append=TRUE, quote=FALSE, sep="\t ", eol="\n", row.names = FALSE, col.names=FALSE)}
 	}
 
-mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+#mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+#mdf_phage = subset(mdf, l3 == "Nitrogen Metabolism")
+mdf_phage = subset(mdf, l3 == "Motility and Chemotaxis")
 f <- ddply(mdf_phage, .(OTU, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
-f3 <- subset(f, ext_frac == "ind")
+f3 <- subset(f, ext_frac == "vlp")
 l = length(unique(f3$OTU))
 stat_sig = rep(0, l)
 for (i in 1:l){
@@ -295,8 +311,8 @@ p = ggplot(f2, aes_string(x="OTU", y="MEAN"))
 p+theme_bw()+geom_point(stackt="identity", aes(color=ext_frac))+geom_errorbar(limits, width=0)+facet_grid(Age~cage_str)
 
 #clustering significant contigs
-abund <- read.delim(sep='\t', file="./abund.subset.txt",header=TRUE, strip.white=TRUE, row.names=1)
-bcd <- vegdist(abund, method="bray")
+abund_sig <- abund[which(rownames(abund) ==  "11070_5415_VLP" |  rownames(abund) ==  "11392_11391_IND" |  rownames(abund) ==  "11495_11494_IND" |  rownames(abund) ==  "11500_11499_IND" |  rownames(abund) ==  "11573_11572_IND" |  rownames(abund) ==  "11577_11576_IND" |  rownames(abund) ==  "1168485_95035_IND" |  rownames(abund) ==  "11895_11894_IND" |  rownames(abund) ==  "1301_1300_VLP" |  rownames(abund) ==  "1395_1394_VLP" |  rownames(abund) ==  "1460_1459_VLP" |  rownames(abund) ==  "1541036_99683_IND" |  rownames(abund) ==  "1545310_100359_IND" |  rownames(abund) ==  "1546282_100483_IND" |  rownames(abund) ==  "1568425_102182_IND" |  rownames(abund) ==  "189_188_IND" |  rownames(abund) ==  "2052_2051_IND" |  rownames(abund) ==  "2281_2280_VLP" |  rownames(abund) ==  "268318_14671_VLP" |  rownames(abund) ==  "278888_15308_VLP" |  rownames(abund) ==  "279518_15392_VLP" |  rownames(abund) ==  "282627_15745_VLP" |  rownames(abund) ==  "3314_3313_VLP" |  rownames(abund) ==  "3398_3397_VLP" |  rownames(abund) ==  "345_344_IND" |  rownames(abund) ==  "47_46_IND" |  rownames(abund) ==  "485381_86166_IND" |  rownames(abund) ==  "6233_6232_IND" |  rownames(abund) ==  "81561_11054_VLP" |  rownames(abund) ==  "8182_8181_IND" |  rownames(abund) ==  "8233_8232_IND" |  rownames(abund) ==  "9169_9168_IND" |  rownames(abund) ==  "9619_9618_IND"),]
+bcd <- vegdist(abund_sig, method="bray")
 #bcd<-vegdist(foo, method="bray")
 clust <- hclust(bcd, method="average")
 plot(clust)
@@ -305,8 +321,8 @@ cluster <-read.delim(sep='\t', file="./cluster.txt",header=FALSE, strip.white=TR
 colnames(cluster) <- c("g")
 cluster <- data.frame(cluster)
 cluster$g <- as.character(cluster$g)
-bcd <- vegdist(abund, method="bray")
-adonis(decostand(abund,"total") ~ g,data=cluster,perm=9999)
+bcd <- vegdist(abund_sig, method="bray")
+adonis(decostand(abund_sig,"total") ~ g,data=cluster,perm=9999)
 groups <- cluster$g
 mod <- betadisper(bcd, groups)
 anova(mod)
@@ -315,5 +331,38 @@ permutest(mod, pairwise = TRUE, permutations=9999)
 
 #looking into 35 contigs
 head(annotation)
-ann_sig <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "150663_12727_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "2972_2971_VLP" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "9619_9618_IND"),]
+ann_sig <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "9619_9618_IND"),]
 summary(ann_sig)
+write.table(ann_sig, file="annotation_of_sig.txt", quote=FALSE,sep="\t")
+ann_sig_g1 <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9619_9618_IND"),]
+summary(ann_sig_g1)
+ann_sig_g2 <- ann[which(rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "9169_9168_IND"),]
+summary(ann_sig_g2)
+
+ann_data_matrix_g1 <- as.matrix(ann_sig_g1)
+annotation_g1 <- tax_table(ann_data_matrix_g1)
+g1 <- phyloseq(annotation_g1, abundance, metadata)
+mdf <- psmelt(g1)
+f <- ddply(mdf, .(l3, diet2, Age, ext_frac, cage_str, Sample), summarise, SUM=sum(Abundance))
+f2 <- ddply(f, .(l3, diet2, Age, ext_frac, cage_str), summarise, MEAN=mean(SUM), SE=sd(SUM)/sqrt(length(SUM)))
+limits<-aes(ymin=MEAN-SE, ymax=MEAN+SE)
+ggsave("group1.eps")
+p = ggplot(f2, aes_string(x="Age", y="MEAN", shape="ext_frac", color="cage_str"))+facet_grid(ext_frac~cage_str)
+p+theme_bw() + theme(strip.background = element_rect(colour='white',fill = 'white'))+geom_point(stat="identity", sdize=7)+geom_errorbar(limits, width=0)+ theme(panel.grid.major=element_blank(), panel.grid.minor = element_blank())+ylab("Relative Abundance")+theme(text=element_text(size=25, family="Helvetica"), legend.position="none")+theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5,size=15))+scale_colour_manual(values=c("blue","orange"))
+dev.off()
+
+
+
+
+
+ann_data_matrix_g2 <- as.matrix(ann_sig_g2)
+annotation_g2 <- tax_table(ann_data_matrix_g2)
+g2 <- phyloseq(annotation_g2, abundance, metadata)
+mdf <- psmelt(g2)
+f <- ddply(mdf, .(l3, diet2, Age, ext_frac, cage_str, Sample), summarise, SUM=sum(Abundance))
+f2 <- ddply(f, .(l3, diet2, Age, ext_frac, cage_str), summarise, MEAN=mean(SUM), SE=sd(SUM)/sqrt(length(SUM)))
+limits<-aes(ymin=MEAN-SE, ymax=MEAN+SE)
+ggsave("group2.eps")
+p = ggplot(f2, aes_string(x="Age", y="MEAN", shape="ext_frac", color="cage_str"))+facet_grid(ext_frac~cage_str)
+p+theme_bw() + theme(strip.background = element_rect(colour='white',fill = 'white'))+geom_point(stat="identity", sdize=7)+geom_errorbar(limits, width=0)+ theme(panel.grid.major=element_blank(), panel.grid.minor = element_blank())+ylab("Relative Abundance")+theme(text=element_text(size=25, family="Helvetica"), legend.position="none")+theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5,size=15))+scale_colour_manual(values=c("blue","orange"))
+dev.off()

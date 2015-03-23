@@ -246,9 +246,9 @@ for (i in 1:l){
 				}
 				
 #Contigs that are significant				
-#mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
+mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
 #mdf_phage = subset(mdf, l3 == "Nitrogen Metabolism")
-mdf_phage = subset(mdf, l3 == "Motility and Chemotaxis")
+#mdf_phage = subset(mdf, l3 == "Motility and Chemotaxis")
 f <- ddply(mdf_phage, .(OTU, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
 f3 <- subset(f, ext_frac == "ind")
 l = length(unique(f3$OTU))
@@ -329,7 +329,7 @@ anova(mod)
 permutest(mod, pairwise = TRUE, permutations=9999)
 (mod.HSD <- TukeyHSD(mod))
 
-#looking into 35 contigs
+#looking into 33 contigs
 head(annotation)
 ann_sig <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "9619_9618_IND"),]
 summary(ann_sig)
@@ -366,3 +366,15 @@ ggsave("group2.eps")
 p = ggplot(f2, aes_string(x="Age", y="MEAN", shape="ext_frac", color="cage_str"))+facet_grid(ext_frac~cage_str)
 p+theme_bw() + theme(strip.background = element_rect(colour='white',fill = 'white'))+geom_point(stat="identity", sdize=7)+geom_errorbar(limits, width=0)+ theme(panel.grid.major=element_blank(), panel.grid.minor = element_blank())+ylab("Relative Abundance")+theme(text=element_text(size=25, family="Helvetica"), legend.position="none")+theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5,size=15))+scale_colour_manual(values=c("blue","orange"))
 dev.off()
+
+abundance_data_norm_matrix <- as.matrix(abund_sig)
+abundance <- otu_table(abundance_data_norm_matrix, taxa_are_rows=TRUE)
+metadata <- sample_data(meta)
+
+#phyloseq object with annotations
+all <- phyloseq(metadata, abundance)
+mdf<-psmelt(all)
+mdf <- subset(mdf, cage_str == "77" & ext_frac == "vlp" & Age == "0")
+f <- ddply(mdf, .(OTU, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
+f2 <- ddply(f, .(OTU, Age, ext_frac), summarise, MEAN=mean(SUM), SE=sd(SUM)/sqrt(length(SUM)))
+

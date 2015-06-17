@@ -44,6 +44,42 @@ t2<-unique(t$OTU)
 blah <-ann[row.names(ann) %in% t2,]
 summary(blah)
  
+#exploring fatty acids
+all_fatty <- subset_taxa(all, l3 == "Fatty Acids, Lipids, and Isoprenoids")
+all_fatty <- subset_samples(all_fatty, ext_frac == "total")
+all_fatty <- subset_samples(all_fatty, diet == "MF" | diet == "LF")
+mdf <- psmelt(all_fatty)
+mdf <- subset(mdf, l2 != "NA")
+f <- ddply(mdf, .(cage, l3, ext_frac, diet, Sample, Age, l2), summarise, SUM=sum(Abundance))
+f2 <- ddply(f, .(cage, l2, ext_frac, diet, Age), summarise, MEAN=mean(SUM), SE=sd(SUM)/sqrt(length(SUM)))
+p = ggplot(f2, aes_string(x="Age", y="MEAN"))
+limits<-aes(ymin=MEAN-SE, ymax=MEAN+SE)
+p+xlab('')+theme_bw() +geom_point(stat="identity", size=3)+geom_errorbar(limits, width=0)+facet_grid(l2 ~ cage)# + theme(panel.grid.major=element_blank(), panel.grid.minor element_blank())+ylab("Relative Abundance")+theme(text=element_text(size=10))
+write.table(f, file="bacilli.txt", quote=FALSE, sep="\t", row.names=FALSE, col.names=TRUE)
+
+summary(aov.result <- aov(SUM ~ l2*cage, data = f))
+print(model.tables(aov.result,"means")) 
+boxplot(SUM~l2*cage,data=f) 
+
+TukeyHSD(aov.result)
+
+l = length(levels(f$l1))
+stat_sig = rep(0, l)
+for (i in 1:l){
+	f_dat <- subset(f, l1 == levels(f$l1)[i])
+	#print(f_dat)
+	summary(aov.result <- aov(SUM ~ diet2, data = f_dat))
+	if(summary(aov.result)[[1]][["Pr(>F)"]][1] <= 0.05 & summary(aov.result)[[1]][["Pr(>F)"]][1] != "NaN"){
+			print(f_dat)
+			print(summary(aov.result <- aov(SUM ~ diet2, data = f_dat)))
+			stat_sig[i] = as.character(f_dat$l1)
+			print(TukeyHSD(aov.result))}
+				}
+
+
+
+
+
 #writing out subsets
 vlp <- subset_samples(all, ext_frac == "ind" & cage_str == "50")
 towrite <- otu_table(vlp)

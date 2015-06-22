@@ -29,6 +29,12 @@ metadata <- sample_data(meta)
 
 #phyloseq object with annotations
 all <- phyloseq(metadata, abundance, annotation)
+all_bact <- subset_samples(all, ext_frac == "total")
+all_vlp <- subset_samples(all, ext_frac == "vlp")
+all_ind <- subset_samples(all, ext_frac == "ind")
+gt0 <- filter_taxa(all_ind, function(x) sum(x) > 0, TRUE)
+sum(summary(as.data.frame(tax_table(gt0))$t1))
+sum(summary(as.data.frame(tax_table(gt0))$l1))
 
 #exploring temperate presence in virus fractions
 all_temp_ind <- subset_samples(all, ext_frac == "ind")
@@ -77,7 +83,7 @@ for (i in 1:l){
 				}
 
 
-
+ 
 
 
 #writing out subsets
@@ -267,7 +273,7 @@ all_ss <- subset_samples(all_ss, diet2 != "MF-LF")
 all_ss <- subset_samples(all_ss, diet2 != "LF-MF")
 mdf <- psmelt(all_ss)
 f <- ddply(mdf, .(l3, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
-f3 <- subset(f, ext_frac == "ind") #change to vlp also
+f3 <- subset(f, ext_frac == "vlp") #change to vlp also
 l = length(levels(f3$l3))
 stat_sig = rep(0, l)
 for (i in 1:l){
@@ -280,6 +286,48 @@ for (i in 1:l){
 			stat_sig[i] = as.character(f_dat$l3[1])
 			print(TukeyHSD(aov.result))}
 				}
+
+
+mdf <- psmelt(all_ss)
+f <- ddply(mdf, .(l3, diet, diet2, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
+f3 <- subset(f, ext_frac == "vlp") #change to vlp also
+l = length(levels(f3$l3))
+stat_sig = rep(0, l)
+for (i in 1:l){
+	f_dat <- subset(f3, l3 == levels(f3$l3)[i])
+	#print(f_dat)
+	summary(aov.result <- aov(SUM ~ diet2, data = f_dat))
+	if(summary(aov.result)[[1]][["Pr(>F)"]][1] <= 0.05 & summary(aov.result)[[1]][["Pr(>F)"]][1] != "NaN"){
+			print(f_dat)
+			print(summary(aov.result <- aov(SUM ~ diet2, data = f_dat)))
+			#stat_sig[i] = as.character(f_dat$l3[1])
+			print(TukeyHSD(aov.result))}
+				}
+								
+				
+				
+all <- phyloseq(metadata, abundance, annotation)
+all_ss <- subset_samples(all, cage_str == "77")
+all_ss <- subset_samples(all, diet2 != "MF-LF")
+all_ss <- subset_samples(all_ss, diet2 != "LF-MF")
+mdf <- psmelt(all_ss)
+mdf <- subset(mdf, l3 == "Amino Acids and Derivatives")
+f <- ddply(mdf, .(l3, diet, Age, ext_frac, Sample), summarise, SUM=sum(Abundance))
+f3 <- subset(f, ext_frac == "ind") #change to vlp also
+l = length(levels(f3$l3))
+stat_sig = rep(0, l)
+for (i in 1:l){
+	f_dat <- subset(f3, l3 == levels(f3$l3)[i])
+	#print(f_dat)
+	summary(aov.result <- aov(SUM ~ diet*Age, data = f_dat))
+	if(summary(aov.result)[[1]][["Pr(>F)"]][1] <= 0.05 & summary(aov.result)[[1]][["Pr(>F)"]][1] != "NaN"){
+			print(f_dat)
+			print(summary(aov.result <- aov(SUM ~ diet*Age, data = f_dat)))
+			stat_sig[i] = as.character(f_dat$l3[1])
+			print(TukeyHSD(aov.result))}
+				}
+
+
 				
 #Contigs that are significant				
 #mdf_phage = subset(mdf, l3 == "Phages, Prophages, Transposable elements, Plasmids")
@@ -347,6 +395,7 @@ p = ggplot(f2, aes_string(x="OTU", y="MEAN"))
 p+theme_bw()+geom_point(stackt="identity", aes(color=ext_frac))+geom_errorbar(limits, width=0)+facet_grid(Age~cage_str)
 
 #clustering significant contigs
+#this abund is the same as the top of analysis workbook
 abund_sig <- abund[which(rownames(abund) ==  "11070_5415_VLP" |  rownames(abund) ==  "11392_11391_IND" |  rownames(abund) ==  "11495_11494_IND" |  rownames(abund) ==  "11500_11499_IND" |  rownames(abund) ==  "11573_11572_IND" |  rownames(abund) ==  "11577_11576_IND" |  rownames(abund) ==  "1168485_95035_IND" |  rownames(abund) ==  "11895_11894_IND" |  rownames(abund) ==  "1301_1300_VLP" |  rownames(abund) ==  "1395_1394_VLP" |  rownames(abund) ==  "1460_1459_VLP" |  rownames(abund) ==  "1541036_99683_IND" |  rownames(abund) ==  "1545310_100359_IND" |  rownames(abund) ==  "1546282_100483_IND" |  rownames(abund) ==  "1568425_102182_IND" |  rownames(abund) ==  "189_188_IND" |  rownames(abund) ==  "2052_2051_IND" |  rownames(abund) ==  "2281_2280_VLP" |  rownames(abund) ==  "268318_14671_VLP" |  rownames(abund) ==  "278888_15308_VLP" |  rownames(abund) ==  "279518_15392_VLP" |  rownames(abund) ==  "282627_15745_VLP" |  rownames(abund) ==  "3314_3313_VLP" |  rownames(abund) ==  "3398_3397_VLP" |  rownames(abund) ==  "345_344_IND" |  rownames(abund) ==  "47_46_IND" |  rownames(abund) ==  "485381_86166_IND" |  rownames(abund) ==  "6233_6232_IND" |  rownames(abund) ==  "81561_11054_VLP" |  rownames(abund) ==  "8182_8181_IND" |  rownames(abund) ==  "8233_8232_IND" |  rownames(abund) ==  "9169_9168_IND" |  rownames(abund) ==  "9619_9618_IND"),]
 bcd <- vegdist(abund_sig, method="bray")
 #bcd<-vegdist(foo, method="bray")
@@ -382,9 +431,9 @@ head(annotation)
 ann_sig <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "9619_9618_IND"),]
 summary(ann_sig)
 write.table(ann_sig, file="annotation_of_sig.txt", quote=FALSE,sep="\t")
-ann_sig_g1 <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1541036_99683_IND" |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9619_9618_IND"),]
+ann_sig_g1 <- ann[which(rownames(ann) ==  "11070_5415_VLP" |  rownames(ann) ==  "11495_11494_IND" |  rownames(ann) ==  "1168485_95035_IND" |  rownames(ann) ==  "11895_11894_IND"  |  rownames(ann) ==  "1546282_100483_IND" |  rownames(ann) ==  "2052_2051_IND" |  rownames(ann) ==  "3314_3313_VLP" |  rownames(ann) ==  "345_344_IND" |  rownames(ann) ==  "47_46_IND" |  rownames(ann) ==  "485381_86166_IND" |  rownames(ann) ==  "8233_8232_IND" |  rownames(ann) ==  "9619_9618_IND"),]
 summary(ann_sig_g1)
-ann_sig_g2 <- ann[which(rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "9169_9168_IND"),]
+ann_sig_g2 <- ann[which(rownames(ann) ==  "11392_11391_IND" |  rownames(ann) ==  "11500_11499_IND" |  rownames(ann) ==  "11573_11572_IND" |  rownames(ann) ==  "11577_11576_IND" |  rownames(ann) ==  "1395_1394_VLP" |  rownames(ann) ==  "1460_1459_VLP" |  rownames(ann) ==  "1545310_100359_IND" |  rownames(ann) ==  "1568425_102182_IND" |  rownames(ann) ==  "189_188_IND" |  rownames(ann) ==  "2281_2280_VLP" |  rownames(ann) ==  "268318_14671_VLP" |  rownames(ann) ==  "278888_15308_VLP" |  rownames(ann) ==  "279518_15392_VLP" |  rownames(ann) ==  "282627_15745_VLP" |  rownames(ann) ==  "3398_3397_VLP" |  rownames(ann) ==  "6233_6232_IND" |  rownames(ann) ==  "81561_11054_VLP" |  rownames(ann) ==  "8182_8181_IND" |  rownames(ann) ==  "9169_9168_IND" |  rownames(ann) ==  "1301_1300_VLP" |  rownames(ann) ==  "1541036_99683_IND"),]
 summary(ann_sig_g2)
 
 ann_data_matrix_g1 <- as.matrix(ann_sig_g1)
@@ -393,6 +442,7 @@ g1 <- phyloseq(annotation_g1, abundance, metadata)
 mdf <- psmelt(g1)
 f <- ddply(mdf, .(l3, diet2, Age, ext_frac, cage_str, Sample), summarise, SUM=sum(Abundance))
 f2 <- ddply(f, .(l3, diet2, Age, ext_frac, cage_str), summarise, MEAN=mean(SUM), SE=sd(SUM)/sqrt(length(SUM)))
+write.table(f2, file="group1_signif.tsv", quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
 limits<-aes(ymin=MEAN-SE, ymax=MEAN+SE)
 ggsave("group1.eps")
 p = ggplot(f2, aes_string(x="Age", y="MEAN", shape="ext_frac", color="cage_str"))+facet_grid(ext_frac~cage_str)

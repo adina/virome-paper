@@ -7,7 +7,7 @@ library(phyloseq)
 library(plyr)
 library(ggplot2)
 library(data.table)
-setwd("/Users/adina/virome-paper/analysis-files")
+setwd("/Users/adina/scratch/virome-paper/analysis-files")
 
 ==============
 #LOAD FUNCTIONAL DATA
@@ -174,6 +174,16 @@ ggsave("FigureS6.eps")
 dev.off()
 
 
+#Checking PCOA axes
+all <- phyloseq(metadata, abundance)
+all_bact <- subset_samples(all, ext_frac == "vlp")
+#all <- phyloseq(metadata, abundance, annotation)
+GPdist = phyloseq::distance(all_bact, "bray")
+GPNMDS = ordinate(all_bact, "MDS", GPdist)
+plot_ordination(all_bact, GPNMDS, color = "diet", shape="cage_str", axes=3:4)+geom_polygon(aes(fill=diet))+theme_bw()
+
+
+
 p2 = plot_ordination(all, GPNMDS, shape="cage_str")
 p2 + geom_point(size = 6)+ theme_bw() + theme(text = element_text(size=15))+theme_bw()+scale_x_continuous(limits = c(-.5, .75))+scale_y_continuous(limits = c(-.5, .5))+theme_bw()
 x <- data.frame(GPNMDS$points)
@@ -268,6 +278,25 @@ setEPS()
 postscript("suppfig4.eps")
 plot(clust)
 dev.off()
+
+#BrayCurtis distance analysis
+all <- phyloseq(metadata, abundance)
+all_77 <- subset_samples(all, cage_str == "77" & ext_frac == "total")
+meta_77 <- sample_data(all_77)
+v_all <- veganotu(all_77)
+bd <- vegdist(v_all, method="bray")
+write.table(as.matrix(bd), file="vlp_77_bd.tsv",sep="\t",quote=FALSE)
+clust.res<-hclust(bd, method="average")
+plot(clust.res)
+adonis(bd ~ Age, perm=9999, as(sample_data(all_77),"data.frame"))
+
+?par
+betad <- betadiver(v_all, "w")
+mod <- with(meta_77, betadisper(betad, Age))
+boxplot(mod)
+plot(mod)
+anova(mod)
+TukeyHSD(mod)
 
 #Functions that are statistically significant
 all <- phyloseq(metadata, abundance, annotation)
